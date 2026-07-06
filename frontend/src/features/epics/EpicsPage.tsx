@@ -2,6 +2,8 @@ import { useState, type FormEvent } from 'react'
 import { TeamSelector } from '../teams/TeamSelector'
 import { useCreateEpic, useDeleteEpic, useEpics, useUpdateEpic } from './useEpics'
 import { getApiErrorMessage } from '../../api/errors'
+import { RichTextEditor } from '../../components/RichTextEditor'
+import { RichTextViewer } from '../../components/RichTextViewer'
 
 export function EpicsPage() {
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null)
@@ -82,11 +84,11 @@ function EpicsList({ teamId }: { teamId: string }) {
           placeholder="New epic title"
           className="min-w-0 flex-1 rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
         />
-        <textarea
+        <RichTextEditor
           value={newDescription}
-          onChange={(e) => setNewDescription(e.target.value)}
+          onChange={setNewDescription}
           placeholder="Description (optional)"
-          className="min-w-0 flex-1 rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+          testId="epic-create-description"
         />
         <button
           type="submit"
@@ -114,18 +116,16 @@ function EpicsList({ teamId }: { teamId: string }) {
                     onChange={(e) => setEditingTitle(e.target.value)}
                     className="min-w-0 flex-1 rounded-md border border-gray-300 bg-gray-50 px-2 py-1 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                   />
-                  <textarea
+                  <RichTextEditor
                     value={editingDescription}
-                    onChange={(e) => setEditingDescription(e.target.value)}
-                    className="min-w-0 flex-1 rounded-md border border-gray-300 bg-gray-50 px-2 py-1 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                    onChange={setEditingDescription}
+                    testId="epic-edit-description"
                   />
                 </div>
               ) : (
                 <div className="min-w-0 flex-1">
                   <p className="text-sm text-gray-900 dark:text-gray-100">{epic.title}</p>
-                  {epic.description && (
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{epic.description}</p>
-                  )}
+                  {epic.description && <RichTextViewer html={epic.description} className="rich-text-content mt-1 text-sm text-gray-500 dark:text-gray-400" />}
                 </div>
               )}
 

@@ -65,7 +65,7 @@ all teams).
 2. Create team "platform" (different case) → 409 duplicate.
 3. Create team "  " (whitespace only) → 400.
 4. Rename team to a name that collides with another existing team (case-insensitive) → 409.
-5. Delete an empty team → 204, removed from list.
+5. Delete an empty team → 200 (empty `data`), removed from list.
 6. Attempt to delete a team with at least one epic → 409, team still present, UI shows a clear
    message (not a raw error dump).
 7. Attempt to delete a team with at least one ticket (no epics) → 409.

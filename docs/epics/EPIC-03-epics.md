@@ -43,7 +43,9 @@ Out: moving an epic between teams (explicit non-goal, spec §5).
 ### T03.5 — Epic management screen (separate from ticket UI per spec §5)
 - Team selector (reuse Epic 02's T02.6 component) to scope the epic list.
 - List epics for selected team with title/description/timestamps.
-- Create form: title (required), description (optional, textarea).
+- Create form: title (required, plain input), description (optional, rich text via the shared
+  `RichTextEditor`/`RichTextViewer` components — description is stored as sanitized HTML, not
+  plain text; see `docs/02-architecture-and-tech-stack.md`).
 - Edit form: title/description only — **no team field shown as editable** (reinforces backend
   immutability with matching UX, avoids a confusing "why didn't my team change save" bug report).
 - Delete button, disabled/explained when the epic has referencing tickets (same pattern as Epic 02

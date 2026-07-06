@@ -71,7 +71,7 @@ Every response — success or failure — has the same shape:
 | GET | `/tickets/{id}` | full detail incl. `createdBy`, `createdAt`, `updatedAt`. 404 if missing. |
 | PUT | `/tickets/{id}` | `{ type, teamId, epicId, title, body, state }` → 200. Full update; `updatedAt` bumped only if a value actually changed. 400 if `epicId` doesn't belong to `teamId`. |
 | PATCH | `/tickets/{id}/state` | `{ state }` → 200. Dedicated endpoint for drag-and-drop — smaller payload, same validation/`updatedAt` rule. |
-| DELETE | `/tickets/{id}` | 204. Cascades to comments (DB-level). No confirmation server-side (UI's job); no blocking conditions. |
+| DELETE | `/tickets/{id}` | 200 (empty `data`). Cascades to comments (DB-level). No confirmation server-side (UI's job); no blocking conditions. |
 
 Ticket response shape:
 ```json

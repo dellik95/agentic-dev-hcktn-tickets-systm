@@ -142,10 +142,10 @@ export function BoardPage() {
   const pendingTicketId = patchTicketState.isPending ? (patchTicketState.variables?.id ?? null) : null
 
   return (
-    <div className="mx-auto mt-12 max-w-6xl px-6">
-      <h1 className="mb-6 text-xl font-semibold text-gray-900 dark:text-gray-100">Board</h1>
+    <div className="mx-auto flex w-[80%] flex-1 flex-col mt-12 pb-6">
+      <h1 className="mb-6 shrink-0 text-xl font-semibold text-gray-900 dark:text-gray-100">Board</h1>
 
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div className="mb-4 flex shrink-0 flex-wrap items-center gap-2">
         <TeamSelector value={teamId} onChange={handleTeamChange} className={fieldClassName} />
 
         <select
@@ -201,7 +201,7 @@ export function BoardPage() {
       )}
 
       {dragError && (
-        <div className="mb-4 flex items-start justify-between gap-3 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+        <div className="mb-4 flex shrink-0 items-start justify-between gap-3 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
           <span>Could not move ticket: {dragError}</span>
           <button onClick={() => setDragError(null)} className="shrink-0 font-medium">
             Dismiss
@@ -216,20 +216,20 @@ export function BoardPage() {
       )}
 
       {teamId && isLoading && (
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className="flex flex-1 gap-4 overflow-x-auto pb-4">
           {TICKET_STATES.map((state) => (
-            <div key={state} className="h-64 w-72 flex-shrink-0 animate-pulse rounded-md bg-gray-100 dark:bg-gray-900" />
+            <div key={state} className="w-72 flex-shrink-0 animate-pulse rounded-md bg-gray-100 dark:bg-gray-900" />
           ))}
         </div>
       )}
 
       {teamId && !isLoading && !isError && tickets?.length === 0 && (
-        <p className="mb-4 text-sm text-gray-500">This team has no tickets yet. Create one to get started.</p>
+        <p className="mb-4 shrink-0 text-sm text-gray-500">This team has no tickets yet. Create one to get started.</p>
       )}
 
       {teamId && !isLoading && !isError && tickets && (
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-          <div className="flex gap-4 overflow-x-auto pb-4">
+          <div className="flex flex-1 gap-4 overflow-x-auto pb-4">
             {TICKET_STATES.map((state) => (
               <BoardColumn
                 key={state}

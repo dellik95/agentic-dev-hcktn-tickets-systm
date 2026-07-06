@@ -4,6 +4,7 @@ import { useTeams } from '../teams/useTeams'
 import { useEpics } from '../epics/useEpics'
 import { useDeleteTicket, useTicket } from './useTickets'
 import { TicketForm } from './TicketForm'
+import { CommentsSection } from '../comments/CommentsSection'
 import { getApiErrorMessage } from '../../api/errors'
 
 // The page a ticket's cards/rows/breadcrumbs link INTO (Epic 06, T06.6). Reuses TicketForm — the
@@ -34,7 +35,7 @@ export function TicketDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto mt-12 max-w-2xl px-6">
+      <div className="mx-auto mt-12 w-[80%]">
         <p className="text-sm text-gray-500">Loading…</p>
       </div>
     )
@@ -42,7 +43,7 @@ export function TicketDetailPage() {
 
   if (isError || !ticket) {
     return (
-      <div className="mx-auto mt-12 max-w-2xl px-6">
+      <div className="mx-auto mt-12 w-[80%]">
         <p className="text-sm text-red-600 dark:text-red-400">{getApiErrorMessage(error, 'Ticket not found.')}</p>
         <Link to="/teams" className="mt-2 inline-block text-sm text-indigo-600 dark:text-indigo-400">
           Back to Teams
@@ -64,7 +65,7 @@ export function TicketDetailPage() {
   ]
 
   return (
-    <div className="mx-auto mt-12 max-w-2xl px-6">
+    <div className="mx-auto mt-12 w-[80%]">
       <Breadcrumb items={breadcrumbItems} />
 
       <div className="mb-6 flex items-center justify-between gap-3">
@@ -74,12 +75,22 @@ export function TicketDetailPage() {
         </button>
       </div>
 
-      <TicketForm
-        teamId={ticket.teamId}
-        ticket={ticket}
-        onSaved={() => navigate(`/board?teamId=${ticket.teamId}`)}
-        onCancel={() => navigate(-1)}
-      />
+      {/* Ticket info / comments split 70/30 on wide screens; comments drop below and take the
+          full width on narrow ones, where a 30%-width column would be too cramped to use. */}
+      <div className="flex flex-col gap-8 lg:flex-row">
+        <div className="lg:w-[70%]">
+          <TicketForm
+            teamId={ticket.teamId}
+            ticket={ticket}
+            hideComments
+            onSaved={() => navigate(`/board?teamId=${ticket.teamId}`)}
+            onCancel={() => navigate(-1)}
+          />
+        </div>
+        <div className="lg:w-[30%]">
+          <CommentsSection ticketId={ticket.id} />
+        </div>
+      </div>
     </div>
   )
 }

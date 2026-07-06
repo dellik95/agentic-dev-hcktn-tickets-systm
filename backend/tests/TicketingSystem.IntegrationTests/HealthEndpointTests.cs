@@ -22,6 +22,11 @@ public class HealthEndpointTests : IClassFixture<WebApplicationFactory<Api.Progr
                 config.AddInMemoryCollection(new Dictionary<string, string?>
                 {
                     ["ConnectionStrings:Default"] = "Server=localhost;Port=3306;Database=test;User=root;Password=x;",
+                    // UseAuthentication() resolves JwtBearerOptions on every request (even for
+                    // anonymous endpoints like /health), so these must be present even though
+                    // this test never presents a token.
+                    ["Jwt:SigningKey"] = "test-signing-key-not-for-real-use-0123456789",
+                    ["Jwt:Issuer"] = "ticketing-system-tests",
                 });
             });
         });

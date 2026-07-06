@@ -1,4 +1,11 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using TicketingSystem.Application.Options;
+using TicketingSystem.Infrastructure;
 using TicketingSystem.Infrastructure.Persistence;
 
 namespace TicketingSystem.Api;
@@ -12,6 +19,40 @@ public class Program
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        builder.Services.AddInfrastructure(builder.Configuration);
+
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer();
+
+        // Bound from IOptions<JwtOptions> (not builder.Configuration directly) so this resolves
+        // lazily against the fully-merged configuration — same reasoning as the DbContext
+        // connection string above.
+        builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+            .Configure<IOptions<JwtOptions>>((bearerOptions, jwtOptions) =>
+            {
+                var jwt = jwtOptions.Value;
+                bearerOptions.MapInboundClaims = false; // keep short claim names ("sub", "email") as issued
+                bearerOptions.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = jwt.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = jwt.Issuer,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SigningKey)),
+                    ClockSkew = TimeSpan.FromSeconds(30),
+                };
+            });
+
+        // Default policy for bare [Authorize] attributes: authenticated AND email-verified.
+        // Every controller in later epics relies on this instead of re-declaring the check.
+        builder.Services.AddAuthorizationBuilder()
+            .SetDefaultPolicy(new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .RequireClaim("email_verified", "true")
+                .Build());
 
         // Connection string is read lazily from DI's IConfiguration (not builder.Configuration
         // directly) so that config overrides applied by WebApplicationFactory in tests — which
@@ -43,6 +84,7 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();

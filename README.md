@@ -4,9 +4,8 @@ Kanban-style ticket tracker: three-tier SPA (React/TypeScript) + API (.NET, JWT 
 (MySQL). Built against the requirements in
 `Hackathon_Ticketing_System_Requirements_v3 1.docx`.
 
-> Status: **planning complete, implementation not started**. This repository currently contains
-> requirements analysis and per-epic implementation plans only — see `docs/`. Application code
-> (`backend/`, `frontend/`, `docker-compose.yml`) will be added per the epic sequence below.
+> Status: **EPIC-07 (infra) and EPIC-01 (auth) implemented.** See
+> [`docs/00-implementation-roadmap.md`](docs/00-implementation-roadmap.md) for what's next.
 
 ## Start Here (docs)
 
@@ -17,11 +16,13 @@ Kanban-style ticket tracker: three-tier SPA (React/TypeScript) + API (.NET, JWT 
 5. [`docs/00-implementation-roadmap.md`](docs/00-implementation-roadmap.md) — epic sequence, milestones, Definition of Done.
 6. `docs/epics/EPIC-01` … `EPIC-08` — per-epic task breakdown and acceptance criteria.
 
-## Planned Stack
+## Stack
 
-- Frontend: React 18 + TypeScript, Vite, `@dnd-kit` for drag-and-drop.
-- Backend: .NET 8, ASP.NET Core Web API, EF Core (Pomelo MySQL provider), JWT bearer auth,
-  Argon2id password hashing.
+- Frontend: React 19 + TypeScript, Vite, Tailwind CSS v4, React Router (data router), TanStack
+  Query, `@dnd-kit` for drag-and-drop.
+- Backend: .NET 10, ASP.NET Core Web API, EF Core 9 (Pomelo MySQL provider — see
+  [`docs/02-architecture-and-tech-stack.md`](docs/02-architecture-and-tech-stack.md) for the
+  version-pinning note), JWT bearer auth, Argon2id password hashing, Central Package Management.
 - Database: MySQL 8.
 - Local email testing: Mailpit (production/demo SMTP: `relay1.dataart.com`, config-driven).
 - Orchestration: Docker Compose (`docker compose up --build` from repo root, no host runtime
@@ -29,16 +30,35 @@ Kanban-style ticket tracker: three-tier SPA (React/TypeScript) + API (.NET, JWT 
 
 ## Epic Sequence
 
-`EPIC-07` (infra skeleton) → `EPIC-01` (auth) → `EPIC-02` (teams) → `EPIC-03` (epics) →
+`EPIC-07` (infra skeleton, done) → `EPIC-01` (auth, done) → `EPIC-02` (teams) → `EPIC-03` (epics) →
 `EPIC-04` (tickets) → `EPIC-05` (comments) → `EPIC-06` (Kanban board) → `EPIC-08` (testing/NFRs,
 continuous + final pass). Rationale and milestones in the roadmap doc.
 
 ## Configuration
 
-Copy `.env.example` to `.env` and fill in real values before running. Never commit `.env`.
+`docker-compose.yml` bakes in dev-safe defaults for every setting, so `docker compose up --build`
+works from a clean checkout with zero setup — no `.env` file required. Copy `.env.example` to
+`.env` (gitignored) only if you want to override something, e.g. pointing `SMTP_*` at
+`relay1.dataart.com` instead of the local Mailpit container.
 
-## Running (once implementation lands)
+## Running
 
 ```
 docker compose up --build
 ```
+
+- Frontend: http://localhost
+- Backend API: http://localhost/api/v1 (also http://localhost:8080 directly, exposed by the dev
+  override)
+- Mailpit (captured emails): http://localhost:8025
+- MySQL: localhost:3306 (exposed by the dev override for inspection with a DB client)
+
+## Tests
+
+```
+cd backend && dotnet test
+cd frontend && npm test
+```
+
+CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs both plus a docker-compose smoke
+test on every PR into `main`.

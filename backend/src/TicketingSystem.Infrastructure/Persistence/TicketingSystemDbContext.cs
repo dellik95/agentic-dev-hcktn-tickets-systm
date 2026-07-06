@@ -1,10 +1,17 @@
 using Microsoft.EntityFrameworkCore;
+using TicketingSystem.Domain.Entities;
 
 namespace TicketingSystem.Infrastructure.Persistence;
 
 public class TicketingSystemDbContext(DbContextOptions<TicketingSystemDbContext> options)
     : DbContext(options)
 {
-    // DbSets are added epic-by-epic (users in Epic 01, teams in Epic 02, etc.)
-    // as their entities land in TicketingSystem.Domain.
+    public DbSet<User> Users => Set<User>();
+    public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(TicketingSystemDbContext).Assembly);
+    }
 }

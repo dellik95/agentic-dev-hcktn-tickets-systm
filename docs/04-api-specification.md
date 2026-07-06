@@ -86,10 +86,13 @@ Ticket response shape:
 
 ## 6. Health (public, optional per spec, implemented for compose orchestration)
 
+Under `/api` but deliberately not versioned (`/api/v1/...`) — health checks are infrastructure,
+not part of the API contract.
+
 | Method | Path | Description |
 |---|---|---|
-| GET | `/health` | liveness — 200 if process up |
-| GET | `/health/ready` | readiness — 200 only if DB reachable |
+| GET | `/api/health` | liveness — 200 if process up |
+| GET | `/api/health/ready` | readiness — 200 only if DB reachable |
 
 ## 7. Validation Rules Enforced Server-Side (non-exhaustive cross-reference)
 

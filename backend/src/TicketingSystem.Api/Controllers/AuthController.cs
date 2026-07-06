@@ -64,4 +64,53 @@ public class AuthController(ISender sender) : ControllerBase
         var result = await sender.Send(new GetCurrentUserQuery(userId), ct);
         return Ok(ApiResponse.Ok(result));
     }
+
+    public record ChangePasswordRequest(string CurrentPassword, string NewPassword);
+
+    [HttpPut("password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request, CancellationToken ct)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        await sender.Send(new ChangePasswordCommand(userId, request.CurrentPassword, request.NewPassword), ct);
+        return Ok(ApiResponse.Ok());
+    }
+
+    public record ForgotPasswordRequest(string Email);
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordRequest request, CancellationToken ct)
+    {
+        await sender.Send(new ForgotPasswordCommand(request.Email), ct);
+        return Ok(ApiResponse.Ok());
+    }
+
+    public record ResetPasswordRequest(string Token, string NewPassword);
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request, CancellationToken ct)
+    {
+        await sender.Send(new ResetPasswordCommand(request.Token, request.NewPassword), ct);
+        return Ok(ApiResponse.Ok());
+    }
+
+    public record UpdateAvatarRequest(string AvatarDataUrl);
+
+    [HttpPut("me/avatar")]
+    [Authorize]
+    public async Task<IActionResult> UpdateAvatar(UpdateAvatarRequest request, CancellationToken ct)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        await sender.Send(new UpdateAvatarCommand(userId, request.AvatarDataUrl), ct);
+        return Ok(ApiResponse.Ok());
+    }
+
+    [HttpGet("me/avatar")]
+    [Authorize]
+    public async Task<IActionResult> GetAvatar(CancellationToken ct)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        var result = await sender.Send(new GetAvatarQuery(userId), ct);
+        return Ok(ApiResponse.Ok(new { AvatarDataUrl = result }));
+    }
 }

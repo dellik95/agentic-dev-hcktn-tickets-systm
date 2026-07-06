@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate, useRouteLoaderData } from 'react-router-dom'
 import { logout } from '../features/auth/session'
+import { useAvatar } from '../features/auth/useAvatar'
 import type { CurrentUser } from '../features/auth/types'
 
 const NAV_LINKS = [
@@ -10,6 +11,7 @@ const NAV_LINKS = [
   { to: '/tickets', label: 'Tickets', end: false },
   { to: '/board', label: 'Board', end: false },
   { to: '/settings/transitions', label: 'Workflow Settings', end: false },
+  { to: '/profile', label: 'Profile', end: false },
 ]
 
 function navLinkClassName({ isActive }: { isActive: boolean }) {
@@ -23,6 +25,7 @@ function navLinkClassName({ isActive }: { isActive: boolean }) {
 export function AppShell() {
   const { user } = useRouteLoaderData('protected') as { user: CurrentUser }
   const navigate = useNavigate()
+  const { data: avatarDataUrl } = useAvatar()
 
   async function handleLogout() {
     await logout()
@@ -45,6 +48,9 @@ export function AppShell() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            {avatarDataUrl && (
+              <img src={avatarDataUrl} alt="Your avatar" className="h-6 w-6 rounded-full object-cover" />
+            )}
             <span className="text-sm text-gray-500 dark:text-gray-400">{user.email}</span>
             <button
               onClick={() => void handleLogout()}

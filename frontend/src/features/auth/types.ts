@@ -8,4 +8,5 @@ export interface CurrentUser {
   id: string
   email: string
   emailVerified: boolean
+  hasAvatar: boolean
 }

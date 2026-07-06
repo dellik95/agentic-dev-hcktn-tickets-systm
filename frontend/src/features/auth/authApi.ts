@@ -31,3 +31,24 @@ export async function getMe(): Promise<CurrentUser> {
   const { data } = await apiClient.get<CurrentUser>('/auth/me')
   return data
 }
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  await apiClient.put('/auth/password', { currentPassword, newPassword })
+}
+
+export async function forgotPassword(email: string): Promise<void> {
+  await apiClient.post('/auth/forgot-password', { email })
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  await apiClient.post('/auth/reset-password', { token, newPassword })
+}
+
+export async function getAvatar(): Promise<string | null> {
+  const { data } = await apiClient.get<{ avatarDataUrl: string | null }>('/auth/me/avatar')
+  return data.avatarDataUrl
+}
+
+export async function updateAvatar(avatarDataUrl: string): Promise<void> {
+  await apiClient.put('/auth/me/avatar', { avatarDataUrl })
+}

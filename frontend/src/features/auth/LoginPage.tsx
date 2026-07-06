@@ -78,6 +78,9 @@ export function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             className="rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
           />
+          <Link to="/forgot-password" className="self-end text-xs text-indigo-600 underline dark:text-indigo-400">
+            Forgot password?
+          </Link>
         </div>
         <button
           type="submit"

@@ -3,6 +3,9 @@ import { AppShell } from './AppShell'
 import { SignUpPage } from '../features/auth/SignUpPage'
 import { LoginPage } from '../features/auth/LoginPage'
 import { VerifyEmailPage } from '../features/auth/VerifyEmailPage'
+import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage'
+import { ResetPasswordPage } from '../features/auth/ResetPasswordPage'
+import { ProfilePage } from '../features/auth/ProfilePage'
 import { HomePage } from '../features/home/HomePage'
 import { TeamsPage } from '../features/teams/TeamsPage'
 import { EpicsPage } from '../features/epics/EpicsPage'
@@ -27,6 +30,8 @@ export const routes: RouteObject[] = [
   { path: '/signup', element: <SignUpPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/verify-email', element: <VerifyEmailPage /> },
+  { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/reset-password', element: <ResetPasswordPage /> },
   {
     id: 'protected',
     loader: protectedLoader,
@@ -39,6 +44,7 @@ export const routes: RouteObject[] = [
       { path: '/tickets/:ticketId', element: <TicketDetailPage /> },
       { path: '/board', element: <BoardPage /> },
       { path: '/settings/transitions', element: <TransitionRulesPage /> },
+      { path: '/profile', element: <ProfilePage /> },
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },

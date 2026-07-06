@@ -8,6 +8,7 @@ public class TicketingSystemDbContext(DbContextOptions<TicketingSystemDbContext>
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<Epic> Epics => Set<Epic>();

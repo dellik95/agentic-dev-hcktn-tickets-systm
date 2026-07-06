@@ -2,7 +2,7 @@ namespace TicketingSystem.Application.Auth;
 
 public record AuthTokenResult(string AccessToken, string RefreshToken, int ExpiresInSeconds);
 
-public record CurrentUserResult(Guid Id, string Email, bool EmailVerified);
+public record CurrentUserResult(Guid Id, string Email, bool EmailVerified, bool HasAvatar);
 
 // Codes for handler-thrown domain exceptions. Input-shape errors (empty email, short password,
 // etc.) go through FluentValidation instead and surface as a generic VALIDATION_ERROR with
@@ -14,4 +14,5 @@ public static class AuthErrorCodes
     public const string EmailNotVerified = "EMAIL_NOT_VERIFIED";
     public const string TokenInvalid = "TOKEN_INVALID";
     public const string TokenExpired = "TOKEN_EXPIRED";
+    public const string IncorrectPassword = "INCORRECT_PASSWORD";
 }

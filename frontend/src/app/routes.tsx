@@ -6,6 +6,7 @@ import { VerifyEmailPage } from '../features/auth/VerifyEmailPage'
 import { HomePage } from '../features/home/HomePage'
 import { TeamsPage } from '../features/teams/TeamsPage'
 import { EpicsPage } from '../features/epics/EpicsPage'
+import { TicketsPage } from '../features/tickets/TicketsPage'
 import { getCurrentUser } from '../features/auth/session'
 
 // Runs before the protected layout renders — redirects to /login before any child route's
@@ -31,6 +32,7 @@ export const routes: RouteObject[] = [
       { path: '/', element: <HomePage /> },
       { path: '/teams', element: <TeamsPage /> },
       { path: '/epics', element: <EpicsPage /> },
+      { path: '/tickets', element: <TicketsPage /> },
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },

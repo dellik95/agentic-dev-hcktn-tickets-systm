@@ -15,8 +15,17 @@ public class DeleteTeamCommandHandler(TicketingSystemDbContext db) : IRequestHan
             ?? throw new NotFoundException(TeamErrorCodes.NotFound, "Team not found.");
 
         var hasEpics = await db.Epics.AnyAsync(e => e.TeamId == request.Id, cancellationToken);
-        if (hasEpics)
-            throw new ConflictException(TeamErrorCodes.HasDependents, "Team cannot be deleted because it still has epics.");
+        var hasTickets = await db.Tickets.AnyAsync(t => t.TeamId == request.Id, cancellationToken);
+        if (hasEpics || hasTickets)
+        {
+            var what = (hasEpics, hasTickets) switch
+            {
+                (true, true) => "epics and tickets",
+                (true, false) => "epics",
+                _ => "tickets",
+            };
+            throw new ConflictException(TeamErrorCodes.HasDependents, $"Team cannot be deleted because it still has {what}.");
+        }
 
         db.Teams.Remove(team);
         await db.SaveChangesAsync(cancellationToken);

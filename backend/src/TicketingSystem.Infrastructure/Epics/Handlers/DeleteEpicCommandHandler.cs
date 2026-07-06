@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using TicketingSystem.Application.Common;
 using TicketingSystem.Application.Epics;
 using TicketingSystem.Application.Epics.Commands;
@@ -13,9 +14,10 @@ public class DeleteEpicCommandHandler(TicketingSystemDbContext db) : IRequestHan
         var epic = await db.Epics.FindAsync([request.Id], cancellationToken)
             ?? throw new NotFoundException(EpicErrorCodes.NotFound, "Epic not found.");
 
-        // No dependent-check needed yet — tickets don't exist until Epic 04. Extend this handler
-        // with the same EPIC_HAS_TICKETS conflict described in docs/epics/EPIC-03-epics.md T03.3
-        // once they do.
+        var hasTickets = await db.Tickets.AnyAsync(t => t.EpicId == request.Id, cancellationToken);
+        if (hasTickets)
+            throw new ConflictException(EpicErrorCodes.HasTickets, "Epic cannot be deleted because it still has tickets.");
+
         db.Epics.Remove(epic);
         await db.SaveChangesAsync(cancellationToken);
     }

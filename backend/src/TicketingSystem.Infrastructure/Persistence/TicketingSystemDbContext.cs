@@ -11,6 +11,7 @@ public class TicketingSystemDbContext(DbContextOptions<TicketingSystemDbContext>
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<Epic> Epics => Set<Epic>();
+    public DbSet<Ticket> Tickets => Set<Ticket>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

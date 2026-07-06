@@ -23,6 +23,9 @@ public class UpdateTicketCommandHandler(TicketingSystemDbContext db, IMapper map
         var newType = Enum.Parse<TicketType>(request.Type);
         var newState = Enum.Parse<TicketState>(request.State);
 
+        if (ticket.State != newState)
+            await TicketStateTransitionValidator.EnsureValidTransitionAsync(db, ticket.State, newState, cancellationToken);
+
         if (ticket.Title != trimmedTitle
             || ticket.Body != request.Body
             || ticket.Type != newType

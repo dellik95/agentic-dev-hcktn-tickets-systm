@@ -13,6 +13,7 @@ public class TicketingSystemDbContext(DbContextOptions<TicketingSystemDbContext>
     public DbSet<Epic> Epics => Set<Epic>();
     public DbSet<Ticket> Tickets => Set<Ticket>();
     public DbSet<Comment> Comments => Set<Comment>();
+    public DbSet<TicketStateTransitionRule> TicketStateTransitionRules => Set<TicketStateTransitionRule>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

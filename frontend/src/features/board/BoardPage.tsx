@@ -4,6 +4,7 @@ import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } f
 import { TeamSelector } from '../teams/TeamSelector'
 import { useEpics } from '../epics/useEpics'
 import { useTickets, usePatchTicketState } from '../tickets/useTickets'
+import { useTransitionRules } from '../tickets/useTransitionRules'
 import { TICKET_STATES, TICKET_TYPES, type Ticket, type TicketState } from '../tickets/types'
 import { Modal } from '../../components/Modal'
 import { TicketForm } from '../tickets/TicketForm'
@@ -82,6 +83,7 @@ export function BoardPage() {
   // Fetch this team's tickets ONCE, unfiltered — filters are applied client-side below (T06.5).
   const { data: tickets, isLoading, isError, error } = useTickets(teamId)
   const { data: epics } = useEpics(teamId)
+  const { data: transitionRules } = useTransitionRules()
   const patchTicketState = usePatchTicketState(teamId ?? '')
 
   const epicsById = useMemo(() => new Map((epics ?? []).map((epic) => [epic.id, epic])), [epics])
@@ -236,6 +238,7 @@ export function BoardPage() {
                 state={state}
                 tickets={ticketsByState.get(state) ?? []}
                 epicsById={epicsById}
+                rules={transitionRules ?? []}
                 pendingTicketId={pendingTicketId}
                 onPatchState={handlePatchState}
               />

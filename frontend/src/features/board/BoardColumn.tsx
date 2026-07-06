@@ -1,6 +1,7 @@
 import { useDroppable } from '@dnd-kit/core'
 import type { Epic } from '../epics/types'
 import { TICKET_STATE_LABELS, type Ticket, type TicketState } from '../tickets/types'
+import type { TransitionRule } from '../tickets/transitionRulesApi'
 import { BoardCard } from './BoardCard'
 
 interface BoardColumnProps {
@@ -9,13 +10,15 @@ interface BoardColumnProps {
   tickets: Ticket[]
   /** Epic id -> Epic, built once in BoardPage so no card/column re-fetches epics. */
   epicsById: Map<string, Epic>
+  /** Fetched once in BoardPage via useTransitionRules() and passed straight through to every card. */
+  rules: TransitionRule[]
   pendingTicketId: string | null
   onPatchState: (id: string, state: TicketState) => void
 }
 
 // One Kanban column — also a dnd-kit droppable zone (id = the column's own state value) so
 // BoardPage's DndContext.onDragEnd can read `over.id` to know which column a card landed in.
-export function BoardColumn({ state, tickets, epicsById, pendingTicketId, onPatchState }: BoardColumnProps) {
+export function BoardColumn({ state, tickets, epicsById, rules, pendingTicketId, onPatchState }: BoardColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: state })
 
   return (
@@ -40,6 +43,7 @@ export function BoardColumn({ state, tickets, epicsById, pendingTicketId, onPatc
             key={ticket.id}
             ticket={ticket}
             epicTitle={ticket.epicId ? epicsById.get(ticket.epicId)?.title : undefined}
+            rules={rules}
             isPending={ticket.id === pendingTicketId}
             onPatchState={onPatchState}
           />

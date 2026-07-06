@@ -21,6 +21,8 @@ public class PatchTicketStateCommandHandler(TicketingSystemDbContext db, IMapper
 
         if (ticket.State != newState)
         {
+            await TicketStateTransitionValidator.EnsureValidTransitionAsync(db, ticket.State, newState, cancellationToken);
+
             ticket.State = newState;
             ticket.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync(cancellationToken);

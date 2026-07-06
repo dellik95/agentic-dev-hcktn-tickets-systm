@@ -84,6 +84,8 @@ users            1 ──── * refresh_tokens
 
 - Index on `team_id` (board/epic-list queries scoped per team).
 - Delete: RESTRICT if any `tickets.epic_id` references it → 409.
+- `description` stores sanitized HTML (rich text editor output), not plain text — same convention
+  applies to `tickets.body` below.
 
 ### 2.6 `tickets`
 | Column | Type | Constraints |

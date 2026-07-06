@@ -31,6 +31,7 @@ Three-tier architecture, each tier independently deployable as a container:
 | Layer | Choice | Rationale |
 |---|---|---|
 | Frontend | React 19 + TypeScript, Vite build, React Router **data router** (`createBrowserRouter`, loader-based route protection), TanStack Query (server-state/cache), `@dnd-kit` (drag-and-drop, accessible, no native HTML5 DnD quirks) | Modern, fast dev loop, strong typing end-to-end when paired with generated API types |
+| Rich text | TipTap (`@tiptap/react` + `starter-kit` + `extension-placeholder`) for editing, `dompurify` for sanitizing before display | Epic description and ticket body are HTML, not plain text. Stored HTML is sanitized on every render (`RichTextViewer`) — the API accepts arbitrary strings, so a direct API caller (not just the UI) could submit a hostile payload; sanitizing only at input time wouldn't catch that. |
 | Frontend styling | Tailwind CSS v4 (`@tailwindcss/vite`, no separate config file) | Utility-first, fast to iterate on, no separate CSS-Modules bookkeeping |
 | Backend | .NET 10, ASP.NET Core Web API, controller style, **CQRS via MediatR** (commands/queries, one handler per use case) | Latest .NET, cross-platform, first-class Docker support, strong EF Core + JWT ecosystem; CQRS keeps each use case isolated and testable |
 | Validation | FluentValidation, wired in as a MediatR pipeline behavior — runs before every handler | Declarative, composable, keeps validation out of handler bodies |

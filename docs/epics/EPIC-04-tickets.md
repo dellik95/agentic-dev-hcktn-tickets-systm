@@ -56,9 +56,10 @@ here.
 - No sequence enforcement — any state → any other state is valid (spec §6, §8). Validation is only
   "is this one of the 5 known values," nothing about legal from/to pairs.
 - `PATCH /tickets/{id}/state` (dedicated endpoint, per API spec §4) for the drag-and-drop path —
-  smaller payload than a full `PUT`, same validation + `updated_at` rule, returns the updated
-  ticket (or 204 — decide based on frontend's optimistic-update needs in Epic 06; a 200 with the
-  fresh entity is simplest for the client to reconcile against).
+  smaller payload than a full `PUT`, same validation + `updated_at` rule, returns 200 with the
+  fresh entity wrapped in the standard envelope (`ApiResponse.Ok(ticket)`) — simplest for the
+  client to reconcile against in Epic 06's optimistic-update flow, and consistent with every other
+  endpoint's "always 200/201 + envelope, never 204" convention (see EPIC-02/03's delete decisions).
 
 ### T04.6 — List/filter endpoint
 - `GET /teams/{teamId}/tickets?type=&epicId=&state=&q=`, all filters optional and AND-combined.
@@ -82,9 +83,10 @@ here.
 ### T04.8 — Ticket create/edit/details view
 - Single view/modal handling all three modes per spec §10 wireframe 3.
 - Fields: team (selector, reuse T02.6), type (select), epic (select, options filtered to the
-  chosen team's epics — refetch/filter whenever team selection changes), title, body (textarea;
-  markdown rendering is a nice-to-have, not required), state (select, editable here in addition to
-  drag-and-drop).
+  chosen team's epics — refetch/filter whenever team selection changes), title, body (rich text
+  via the shared `RichTextEditor`/`RichTextViewer` components — same as Epic 03's description,
+  stored as sanitized HTML rather than plain text; supersedes the original "markdown is a
+  nice-to-have" note), state (select, editable here in addition to drag-and-drop).
 - Read-only fields shown in details mode: id, createdBy, createdAt, updatedAt.
 - **Team-change-clears-epic UX** (spec §6): when the user changes the team dropdown while editing,
   immediately clear the epic selection in the form state — don't wait for a failed submit.

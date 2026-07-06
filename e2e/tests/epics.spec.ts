@@ -29,7 +29,7 @@ test('create, rename, and delete an epic scoped to a team', async ({ page }) => 
 
   const epicTitle = `E2E Epic ${Date.now()}`
   await page.fill('input[placeholder="New epic title"]', epicTitle)
-  await page.fill('textarea[placeholder="Description (optional)"]', 'Initial description')
+  await page.locator('[data-testid="epic-create-description"]').fill('Initial description')
   await page.click('button:has-text("Create")')
   const row = page.locator('li', { hasText: epicTitle })
   await expect(row).toBeVisible()
@@ -39,11 +39,12 @@ test('create, rename, and delete an epic scoped to a team', async ({ page }) => 
   // editing starts, the title moves from a text node into an <input value>, which Playwright's
   // hasText text-content match can't see — so `row` (found by hasText) stops resolving the
   // instant edit mode starts. Only one row is ever mid-edit at a time (single worker), so the
-  // unscoped `li input`/`li textarea`/`li button` is unambiguous here.
+  // unscoped `li input` / testid / button is unambiguous here. The description editor is a TipTap
+  // contenteditable, not a <textarea> — Playwright's fill() supports contenteditable directly.
   await row.getByRole('button', { name: 'Rename' }).click()
   const renamedTitle = `${epicTitle} Renamed`
   await page.locator('li input').fill(renamedTitle)
-  await page.locator('li textarea').fill('Updated description')
+  await page.locator('[data-testid="epic-edit-description"]').fill('Updated description')
   await page.locator('li').getByRole('button', { name: 'Save' }).click()
   const renamedRow = page.locator('li', { hasText: renamedTitle })
   await expect(renamedRow).toBeVisible()

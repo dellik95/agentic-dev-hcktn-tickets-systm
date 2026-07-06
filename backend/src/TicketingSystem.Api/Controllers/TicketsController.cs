@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TicketingSystem.Application.Common;
+using TicketingSystem.Application.Tickets;
 using TicketingSystem.Application.Tickets.Commands;
 using TicketingSystem.Application.Tickets.Queries;
 
@@ -16,6 +17,7 @@ public class TicketsController(ISender sender) : ControllerBase
     public record CreateTicketRequest(string Type, string Title, string Body, Guid? EpicId);
     public record UpdateTicketRequest(string Type, Guid TeamId, Guid? EpicId, string Title, string Body, string State);
     public record PatchTicketStateRequest(string State);
+    public record ReplaceTicketStateTransitionRulesRequest(IReadOnlyList<TicketStateTransitionRuleDto> Rules);
 
     [HttpGet("api/v1/teams/{teamId:guid}/tickets")]
     public async Task<IActionResult> GetByTeam(
@@ -66,5 +68,19 @@ public class TicketsController(ISender sender) : ControllerBase
     {
         await sender.Send(new DeleteTicketCommand(id), ct);
         return Ok(ApiResponse.Ok());
+    }
+
+    [HttpGet("api/v1/ticket-state-transition-rules")]
+    public async Task<IActionResult> GetStateTransitionRules(CancellationToken ct)
+    {
+        var rules = await sender.Send(new GetTicketStateTransitionRulesQuery(), ct);
+        return Ok(ApiResponse.Ok(rules));
+    }
+
+    [HttpPut("api/v1/ticket-state-transition-rules")]
+    public async Task<IActionResult> ReplaceStateTransitionRules(ReplaceTicketStateTransitionRulesRequest request, CancellationToken ct)
+    {
+        var rules = await sender.Send(new ReplaceTicketStateTransitionRulesCommand(request.Rules), ct);
+        return Ok(ApiResponse.Ok(rules));
     }
 }

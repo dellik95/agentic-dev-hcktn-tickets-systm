@@ -9,6 +9,7 @@ import { EpicsPage } from '../features/epics/EpicsPage'
 import { TicketsPage } from '../features/tickets/TicketsPage'
 import { TicketDetailPage } from '../features/tickets/TicketDetailPage'
 import { BoardPage } from '../features/board/BoardPage'
+import { TransitionRulesPage } from '../features/settings/TransitionRulesPage'
 import { getCurrentUser } from '../features/auth/session'
 
 // Runs before the protected layout renders — redirects to /login before any child route's
@@ -37,6 +38,7 @@ export const routes: RouteObject[] = [
       { path: '/tickets', element: <TicketsPage /> },
       { path: '/tickets/:ticketId', element: <TicketDetailPage /> },
       { path: '/board', element: <BoardPage /> },
+      { path: '/settings/transitions', element: <TransitionRulesPage /> },
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },

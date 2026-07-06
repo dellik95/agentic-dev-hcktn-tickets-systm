@@ -2,6 +2,8 @@ namespace TicketingSystem.Application.Tickets;
 
 public record TicketCreatedByDto(Guid Id, string Email);
 
+public record TicketStateTransitionRuleDto(string FromState, string ToState);
+
 public record TicketDto(
     Guid Id,
     Guid TeamId,
@@ -19,4 +21,5 @@ public static class TicketErrorCodes
     public const string NotFound = "TICKET_NOT_FOUND";
     public const string TeamNotFound = "TEAM_NOT_FOUND";
     public const string EpicTeamMismatch = "EPIC_TEAM_MISMATCH";
+    public const string InvalidStateTransition = "INVALID_STATE_TRANSITION";
 }

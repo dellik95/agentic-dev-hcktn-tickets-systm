@@ -2,12 +2,16 @@ import { memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import { TICKET_STATES, TICKET_STATE_LABELS, type Ticket, type TicketState } from '../tickets/types'
+import { TICKET_STATE_LABELS, type Ticket, type TicketState } from '../tickets/types'
+import { getAllowedNextStates } from '../tickets/useTransitionRules'
+import type { TransitionRule } from '../tickets/transitionRulesApi'
 
 interface BoardCardProps {
   ticket: Ticket
   /** Looked up by BoardColumn from the epics list BoardPage already fetched — never fetched here. */
   epicTitle: string | undefined
+  /** Fetched once by BoardPage via useTransitionRules() and threaded down — never fetched here. */
+  rules: TransitionRule[]
   /** True while THIS ticket's usePatchTicketState mutation (drag or dropdown) is in flight. */
   isPending: boolean
   onPatchState: (id: string, state: TicketState) => void
@@ -16,11 +20,12 @@ interface BoardCardProps {
 // Wrapped in React.memo — a board can hold 100+ cards (T06.8), so without this, any unrelated
 // state change on the page (typing in the search box, another card's drag) would re-render every
 // card instead of just the ones whose own props changed.
-export const BoardCard = memo(function BoardCard({ ticket, epicTitle, isPending, onPatchState }: BoardCardProps) {
+export const BoardCard = memo(function BoardCard({ ticket, epicTitle, rules, isPending, onPatchState }: BoardCardProps) {
   const navigate = useNavigate()
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: ticket.id })
 
   const style = transform ? { transform: CSS.Translate.toString(transform) } : undefined
+  const allowedNextStates = getAllowedNextStates(rules, ticket.state)
 
   return (
     <div
@@ -52,7 +57,7 @@ export const BoardCard = memo(function BoardCard({ ticket, epicTitle, isPending,
         onChange={(event) => onPatchState(ticket.id, event.target.value as TicketState)}
         className="mt-2 w-full rounded-md border border-gray-300 bg-gray-50 px-2 py-1 text-xs text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
       >
-        {TICKET_STATES.map((state) => (
+        {allowedNextStates.map((state) => (
           <option key={state} value={state}>
             {TICKET_STATE_LABELS[state]}
           </option>

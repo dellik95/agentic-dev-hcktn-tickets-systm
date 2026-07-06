@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { to: '/epics', label: 'Epics', end: false },
   { to: '/tickets', label: 'Tickets', end: false },
   { to: '/board', label: 'Board', end: false },
+  { to: '/settings/transitions', label: 'Workflow Settings', end: false },
 ]
 
 function navLinkClassName({ isActive }: { isActive: boolean }) {

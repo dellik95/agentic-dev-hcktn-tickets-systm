@@ -4,6 +4,7 @@ import { useEpics } from '../epics/useEpics'
 import { useCreateTicket, useUpdateTicket } from './useTickets'
 import { getApiErrorMessage } from '../../api/errors'
 import { RichTextEditor } from '../../components/RichTextEditor'
+import { CommentsSection } from '../comments/CommentsSection'
 import { TICKET_STATES, TICKET_STATE_LABELS, TICKET_TYPES, type Ticket, type TicketState, type TicketType } from './types'
 
 interface TicketFormProps {
@@ -78,90 +79,94 @@ export function TicketForm({ teamId, ticket, onSaved, onCancel }: TicketFormProp
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <div>
-        <label className={labelClassName}>Team</label>
-        <TeamSelector value={formTeamId} onChange={handleTeamChange} className={fieldClassName} />
-      </div>
-
-      <div>
-        <label className={labelClassName}>Type</label>
-        <select value={formType} onChange={(e) => setFormType(e.target.value as TicketType)} className={fieldClassName}>
-          {TICKET_TYPES.map((type) => (
-            <option key={type} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className={labelClassName}>Epic</label>
-        <select value={formEpicId ?? ''} onChange={(e) => setFormEpicId(e.target.value || null)} className={fieldClassName}>
-          <option value="">No epic</option>
-          {epics?.map((epic) => (
-            <option key={epic.id} value={epic.id}>
-              {epic.title}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {isEditMode && (
+    <>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <div>
-          <label className={labelClassName}>State</label>
-          <select value={formState} onChange={(e) => setFormState(e.target.value as TicketState)} className={fieldClassName}>
-            {TICKET_STATES.map((state) => (
-              <option key={state} value={state}>
-                {TICKET_STATE_LABELS[state]}
+          <label className={labelClassName}>Team</label>
+          <TeamSelector value={formTeamId} onChange={handleTeamChange} className={fieldClassName} />
+        </div>
+
+        <div>
+          <label className={labelClassName}>Type</label>
+          <select value={formType} onChange={(e) => setFormType(e.target.value as TicketType)} className={fieldClassName}>
+            {TICKET_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {type}
               </option>
             ))}
           </select>
         </div>
-      )}
 
-      <div>
-        <label className={labelClassName}>Title</label>
-        <input
-          value={formTitle}
-          onChange={(e) => setFormTitle(e.target.value)}
-          placeholder="Ticket title"
-          className={fieldClassName}
-        />
-      </div>
-
-      <div>
-        <label className={labelClassName}>Body</label>
-        <RichTextEditor value={formBody} onChange={setFormBody} placeholder="Describe the ticket…" testId="ticket-form-body" />
-      </div>
-
-      {ticket && (
-        <div className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">
-          <p>ID: {ticket.id}</p>
-          <p>Created by: {ticket.createdBy.email}</p>
-          <p>Created at: {new Date(ticket.createdAt).toLocaleString()}</p>
-          <p>Updated at: {new Date(ticket.updatedAt).toLocaleString()}</p>
+        <div>
+          <label className={labelClassName}>Epic</label>
+          <select value={formEpicId ?? ''} onChange={(e) => setFormEpicId(e.target.value || null)} className={fieldClassName}>
+            <option value="">No epic</option>
+            {epics?.map((epic) => (
+              <option key={epic.id} value={epic.id}>
+                {epic.title}
+              </option>
+            ))}
+          </select>
         </div>
-      )}
 
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+        {isEditMode && (
+          <div>
+            <label className={labelClassName}>State</label>
+            <select value={formState} onChange={(e) => setFormState(e.target.value as TicketState)} className={fieldClassName}>
+              {TICKET_STATES.map((state) => (
+                <option key={state} value={state}>
+                  {TICKET_STATE_LABELS[state]}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          disabled={isSaving}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60 dark:bg-gray-100 dark:text-gray-900"
-        >
-          {isEditMode ? 'Save' : 'Create'}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-900 dark:border-gray-700 dark:text-gray-100"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
+        <div>
+          <label className={labelClassName}>Title</label>
+          <input
+            value={formTitle}
+            onChange={(e) => setFormTitle(e.target.value)}
+            placeholder="Ticket title"
+            className={fieldClassName}
+          />
+        </div>
+
+        <div>
+          <label className={labelClassName}>Body</label>
+          <RichTextEditor value={formBody} onChange={setFormBody} placeholder="Describe the ticket…" testId="ticket-form-body" />
+        </div>
+
+        {ticket && (
+          <div className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">
+            <p>ID: {ticket.id}</p>
+            <p>Created by: {ticket.createdBy.email}</p>
+            <p>Created at: {new Date(ticket.createdAt).toLocaleString()}</p>
+            <p>Updated at: {new Date(ticket.updatedAt).toLocaleString()}</p>
+          </div>
+        )}
+
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            disabled={isSaving}
+            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60 dark:bg-gray-100 dark:text-gray-900"
+          >
+            {isEditMode ? 'Save' : 'Create'}
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-900 dark:border-gray-700 dark:text-gray-100"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+
+      {ticket && <CommentsSection ticketId={ticket.id} />}
+    </>
   )
 }

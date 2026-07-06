@@ -12,6 +12,7 @@ public class TicketingSystemDbContext(DbContextOptions<TicketingSystemDbContext>
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<Epic> Epics => Set<Epic>();
     public DbSet<Ticket> Tickets => Set<Ticket>();
+    public DbSet<Comment> Comments => Set<Comment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

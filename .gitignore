@@ -40,6 +40,9 @@ logs/
 # Test / coverage
 coverage/
 TestResults/
+test-results/
+playwright-report/
+blob-report/
 
 # Global gitignore excludes docs/ by default for this user — un-ignore for this repo.
 !docs/

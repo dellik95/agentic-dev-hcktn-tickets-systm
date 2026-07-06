@@ -1,10 +1,9 @@
 import { useState, type FormEvent } from 'react'
-import { isAxiosError } from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
 import { login } from './session'
 import { ResendVerificationForm } from './ResendVerificationForm'
-import { getApiErrorMessage } from '../../api/errors'
-import type { ApiErrorBody } from './types'
+import { getApiErrorCode, getApiErrorMessage } from '../../api/errors'
+import { AUTH_ERROR_CODES } from '../../api/errorCodes'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -24,7 +23,7 @@ export function LoginPage() {
       await login(email, password)
       navigate('/')
     } catch (err) {
-      if (isAxiosError<ApiErrorBody>(err) && err.response?.data?.code === 'EMAIL_NOT_VERIFIED') {
+      if (getApiErrorCode(err) === AUTH_ERROR_CODES.EMAIL_NOT_VERIFIED) {
         setShowResend(true)
       } else {
         setError(getApiErrorMessage(err, 'Login failed. Please try again.'))

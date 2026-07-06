@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using TicketingSystem.Api.Middleware;
 using TicketingSystem.Application.Options;
 using TicketingSystem.Infrastructure;
 using TicketingSystem.Infrastructure.Persistence;
@@ -21,6 +22,9 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         builder.Services.AddInfrastructure(builder.Configuration);
+
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+        builder.Services.AddProblemDetails();
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer();
@@ -77,6 +81,8 @@ public class Program
             using var scope = app.Services.CreateScope();
             scope.ServiceProvider.GetRequiredService<TicketingSystemDbContext>().Database.Migrate();
         }
+
+        app.UseExceptionHandler();
 
         if (app.Environment.IsDevelopment())
         {

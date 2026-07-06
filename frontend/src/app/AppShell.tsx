@@ -31,7 +31,7 @@ export function AppShell() {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="shrink-0 border-b border-gray-200 dark:border-gray-800">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3">
+        <div className="mx-auto flex w-[80%] flex-wrap items-center justify-between gap-3 py-3">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
             <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Ticketing System</span>
             <nav className="flex flex-wrap gap-x-4 gap-y-2">
@@ -55,7 +55,7 @@ export function AppShell() {
         </div>
       </header>
 
-      <main className="flex-1">
+      <main className="flex flex-1 flex-col">
         <Outlet />
       </main>
     </div>

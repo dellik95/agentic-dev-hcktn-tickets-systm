@@ -33,7 +33,7 @@ export function BoardColumn({ state, tickets, epicsById, pendingTicketId, onPatc
         </span>
       </div>
 
-      <div className="flex min-h-[140px] flex-1 flex-col gap-2 p-2">
+      <div className="flex min-h-[140px] flex-1 flex-col gap-2 overflow-y-auto p-2">
         {tickets.length === 0 && <p className="px-1 py-2 text-xs text-gray-400 dark:text-gray-600">No tickets</p>}
         {tickets.map((ticket) => (
           <BoardCard

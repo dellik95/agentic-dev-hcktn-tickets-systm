@@ -16,7 +16,7 @@ export function TicketsPage() {
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null)
 
   return (
-    <div className="mx-auto mt-12 max-w-2xl px-6">
+    <div className="mx-auto mt-12 w-[80%]">
       <h1 className="mb-6 text-xl font-semibold text-gray-900 dark:text-gray-100">Tickets</h1>
 
       <TeamSelector value={selectedTeamId} onChange={setSelectedTeamId} className={`mb-6 w-full ${fieldClassName}`} />

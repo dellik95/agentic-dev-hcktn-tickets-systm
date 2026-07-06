@@ -14,6 +14,8 @@ interface TicketFormProps {
   ticket?: Ticket
   onSaved: () => void
   onCancel: () => void
+  /** Set by TicketDetailPage, which renders CommentsSection itself in a separate column instead. */
+  hideComments?: boolean
 }
 
 const fieldClassName =
@@ -22,7 +24,7 @@ const labelClassName = 'mb-1 block text-xs font-medium text-gray-500 dark:text-g
 
 // Shared by the tickets list (Epic 04) and, later, the Kanban board (Epic 06) for opening a
 // card's detail — one form drives both create and edit so the two never drift apart.
-export function TicketForm({ teamId, ticket, onSaved, onCancel }: TicketFormProps) {
+export function TicketForm({ teamId, ticket, onSaved, onCancel, hideComments }: TicketFormProps) {
   const isEditMode = !!ticket
 
   const [formTeamId, setFormTeamId] = useState(ticket?.teamId ?? teamId)
@@ -166,7 +168,7 @@ export function TicketForm({ teamId, ticket, onSaved, onCancel }: TicketFormProp
         </div>
       </form>
 
-      {ticket && <CommentsSection ticketId={ticket.id} />}
+      {ticket && !hideComments && <CommentsSection ticketId={ticket.id} />}
     </>
   )
 }

@@ -1,5 +1,6 @@
 using AutoMapper;
 using TicketingSystem.Application.Auth;
+using TicketingSystem.Application.Comments;
 using TicketingSystem.Application.Epics;
 using TicketingSystem.Application.Teams;
 using TicketingSystem.Application.Tickets;
@@ -17,5 +18,7 @@ public class MappingProfile : Profile
             .ForCtorParam(nameof(CurrentUserResult.EmailVerified), opt => opt.MapFrom(u => u.IsEmailVerified));
         CreateMap<User, TicketCreatedByDto>();
         CreateMap<Ticket, TicketDto>();
+        CreateMap<User, CommentAuthorDto>();
+        CreateMap<Comment, CommentDto>();
     }
 }

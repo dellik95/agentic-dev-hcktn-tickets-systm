@@ -9,8 +9,9 @@ import { signUpVerifyAndLogIn } from '../helpers/auth'
 async function createTeam(page: Page, name: string) {
   await page.click('nav >> text=Teams')
   await expect(page).toHaveURL(/\/teams/)
-  await page.fill('input[placeholder="New team name"]', name)
-  await page.click('button:has-text("Create")')
+  await page.click('button:has-text("Create team")')
+  await page.fill('[role="dialog"] input[placeholder="Team name"]', name)
+  await page.click('[role="dialog"] button:has-text("Create")')
   await expect(page.locator('li', { hasText: name })).toBeVisible()
 }
 
@@ -28,24 +29,22 @@ test('create, rename, and delete an epic scoped to a team', async ({ page }) => 
   await page.selectOption('select', { label: teamName })
 
   const epicTitle = `E2E Epic ${Date.now()}`
-  await page.fill('input[placeholder="New epic title"]', epicTitle)
+  await page.click('button:has-text("Create epic")')
+  await page.fill('[role="dialog"] input[placeholder="Epic title"]', epicTitle)
   await page.locator('[data-testid="epic-create-description"]').fill('Initial description')
-  await page.click('button:has-text("Create")')
+  await page.click('[role="dialog"] button:has-text("Create")')
   const row = page.locator('li', { hasText: epicTitle })
   await expect(row).toBeVisible()
   await expect(row.getByText('Initial description', { exact: true })).toBeVisible()
 
-  // Rename: title and description both editable, no team control anywhere in the edit row. Once
-  // editing starts, the title moves from a text node into an <input value>, which Playwright's
-  // hasText text-content match can't see — so `row` (found by hasText) stops resolving the
-  // instant edit mode starts. Only one row is ever mid-edit at a time (single worker), so the
-  // unscoped `li input` / testid / button is unambiguous here. The description editor is a TipTap
-  // contenteditable, not a <textarea> — Playwright's fill() supports contenteditable directly.
+  // Rename via the modal: title and description both editable, no team control anywhere (an
+  // epic's team is immutable after creation). The description editor is a TipTap contenteditable,
+  // not a <textarea> — Playwright's fill() supports contenteditable directly.
   await row.getByRole('button', { name: 'Rename' }).click()
   const renamedTitle = `${epicTitle} Renamed`
-  await page.locator('li input').fill(renamedTitle)
+  await page.fill('[role="dialog"] input[placeholder="Epic title"]', renamedTitle)
   await page.locator('[data-testid="epic-edit-description"]').fill('Updated description')
-  await page.locator('li').getByRole('button', { name: 'Save' }).click()
+  await page.click('[role="dialog"] button:has-text("Save")')
   const renamedRow = page.locator('li', { hasText: renamedTitle })
   await expect(renamedRow).toBeVisible()
   await expect(renamedRow.getByText('Updated description', { exact: true })).toBeVisible()
@@ -74,8 +73,9 @@ test('empty epic title is rejected', async ({ page }) => {
 
   await page.click('nav >> text=Epics')
   await page.selectOption('select', { label: teamName })
-  await page.fill('input[placeholder="New epic title"]', '   ')
-  await page.click('button:has-text("Create")')
+  await page.click('button:has-text("Create epic")')
+  await page.fill('[role="dialog"] input[placeholder="Epic title"]', '   ')
+  await page.click('[role="dialog"] button:has-text("Create")')
 
   await expect(page.getByText('Epic title is required.')).toBeVisible()
 })
@@ -89,8 +89,9 @@ test('a team with epics cannot be deleted', async ({ page }) => {
 
   await page.click('nav >> text=Epics')
   await page.selectOption('select', { label: teamName })
-  await page.fill('input[placeholder="New epic title"]', 'Blocking Epic')
-  await page.click('button:has-text("Create")')
+  await page.click('button:has-text("Create epic")')
+  await page.fill('[role="dialog"] input[placeholder="Epic title"]', 'Blocking Epic')
+  await page.click('[role="dialog"] button:has-text("Create")')
   await expect(page.locator('li', { hasText: 'Blocking Epic' })).toBeVisible()
 
   await page.click('nav >> text=Teams')

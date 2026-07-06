@@ -8,7 +8,7 @@ import { AUTH_ERROR_CODES } from '../../api/errorCodes'
 export function LoginPage() {
   const navigate = useNavigate()
 
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState('Supervisor@test.com')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [showResend, setShowResend] = useState(false)

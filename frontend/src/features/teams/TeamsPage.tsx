@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { useCreateTeam, useDeleteTeam, useRenameTeam, useTeams } from './useTeams'
 import { getApiErrorMessage } from '../../api/errors'
 import { Modal } from '../../components/Modal'
@@ -48,6 +49,9 @@ export function TeamsPage() {
               <span className="text-sm text-gray-900 dark:text-gray-100">{team.name}</span>
 
               <div className="flex shrink-0 gap-3 text-sm">
+                <Link to={`/epics?teamId=${team.id}`} className="text-indigo-600 dark:text-indigo-400">
+                  View epics
+                </Link>
                 <button
                   onClick={() => setEditingTeam({ id: team.id, name: team.name })}
                   className="text-indigo-600 dark:text-indigo-400"

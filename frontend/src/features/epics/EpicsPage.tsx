@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { TeamSelector } from '../teams/TeamSelector'
 import { useCreateEpic, useDeleteEpic, useEpics, useUpdateEpic } from './useEpics'
 import { getApiErrorMessage } from '../../api/errors'
@@ -11,7 +12,10 @@ const fieldClassName =
   'w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100'
 
 export function EpicsPage() {
-  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null)
+  const [searchParams] = useSearchParams()
+  // Seeds the selector from ?teamId=... so arriving from TeamsPage's "View epics" link (or any
+  // other deep link) lands with that team already selected — the TeamSelector itself is untouched.
+  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(searchParams.get('teamId'))
 
   return (
     <div className="mx-auto mt-12 max-w-2xl px-6">
@@ -76,6 +80,9 @@ function EpicsList({ teamId }: { teamId: string }) {
               </div>
 
               <div className="flex shrink-0 gap-3 text-sm">
+                <Link to={`/board?teamId=${teamId}&epicId=${epic.id}`} className="text-indigo-600 dark:text-indigo-400">
+                  View tickets
+                </Link>
                 <button onClick={() => setEditingEpic(epic)} className="text-indigo-600 dark:text-indigo-400">
                   Rename
                 </button>

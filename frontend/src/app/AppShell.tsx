@@ -8,6 +8,7 @@ const NAV_LINKS = [
   // Epics/Tickets links land alongside their epics.
   { to: '/epics', label: 'Epics', end: false },
   { to: '/tickets', label: 'Tickets', end: false },
+  { to: '/board', label: 'Board', end: false },
 ]
 
 function navLinkClassName({ isActive }: { isActive: boolean }) {
@@ -28,12 +29,12 @@ export function AppShell() {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-gray-200 dark:border-gray-800">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-6">
+    <div className="flex min-h-screen flex-col">
+      <header className="shrink-0 border-b border-gray-200 dark:border-gray-800">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
             <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Ticketing System</span>
-            <nav className="flex gap-4">
+            <nav className="flex flex-wrap gap-x-4 gap-y-2">
               {NAV_LINKS.map((link) => (
                 <NavLink key={link.to} to={link.to} end={link.end} className={navLinkClassName}>
                   {link.label}
@@ -42,7 +43,7 @@ export function AppShell() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <span className="text-sm text-gray-500 dark:text-gray-400">{user.email}</span>
             <button
               onClick={() => void handleLogout()}
@@ -54,7 +55,7 @@ export function AppShell() {
         </div>
       </header>
 
-      <main>
+      <main className="flex-1">
         <Outlet />
       </main>
     </div>

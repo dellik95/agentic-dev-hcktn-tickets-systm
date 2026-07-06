@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* Full-height chain so AppShell's own min-h-screen/flex-col actually has something to fill —
+   without this, a child's percentage/viewport height still works (min-h-screen uses 100vh), but
+   #root itself stays only as tall as its content, which is what min-h-screen is meant to override. */
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
   @apply bg-white text-gray-700 dark:bg-gray-950 dark:text-gray-300;
 }

@@ -1,79 +1,67 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TicketingSystem.Application.Auth;
+using TicketingSystem.Application.Auth.Commands;
+using TicketingSystem.Application.Auth.Queries;
 using TicketingSystem.Application.Common;
 
 namespace TicketingSystem.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/auth")]
-public class AuthController(IAuthService authService) : ControllerBase
+public class AuthController(ISender sender) : ControllerBase
 {
     [HttpPost("signup")]
-    public async Task<IActionResult> SignUp(SignUpRequest request, CancellationToken ct)
+    public async Task<IActionResult> SignUp(SignUpCommand command, CancellationToken ct)
     {
-        var result = await authService.SignUpAsync(request.Email, request.Password, ct);
-        return result.IsSuccess ? StatusCode(StatusCodes.Status201Created) : ToErrorResult(result);
+        await sender.Send(command, ct);
+        return StatusCode(StatusCodes.Status201Created, ApiResponse.Ok());
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginRequest request, CancellationToken ct)
+    public async Task<IActionResult> Login(LoginCommand command, CancellationToken ct)
     {
-        var result = await authService.LoginAsync(request.Email, request.Password, ct);
-        return result.IsSuccess ? Ok(result.Value) : ToErrorResult(result);
+        var tokens = await sender.Send(command, ct);
+        return Ok(ApiResponse.Ok(tokens));
     }
 
     [HttpPost("logout")]
     [Authorize]
-    public async Task<IActionResult> Logout(RefreshTokenRequest request, CancellationToken ct)
+    public async Task<IActionResult> Logout(LogoutCommand command, CancellationToken ct)
     {
-        await authService.LogoutAsync(request.RefreshToken, ct);
-        return NoContent();
+        await sender.Send(command, ct);
+        return Ok(ApiResponse.Ok());
     }
 
     [HttpPost("refresh")]
-    public async Task<IActionResult> Refresh(RefreshTokenRequest request, CancellationToken ct)
+    public async Task<IActionResult> Refresh(RefreshCommand command, CancellationToken ct)
     {
-        var result = await authService.RefreshAsync(request.RefreshToken, ct);
-        return result.IsSuccess ? Ok(result.Value) : ToErrorResult(result);
+        var tokens = await sender.Send(command, ct);
+        return Ok(ApiResponse.Ok(tokens));
     }
 
     [HttpGet("verify-email")]
     public async Task<IActionResult> VerifyEmail([FromQuery] string token, CancellationToken ct)
     {
-        var result = await authService.VerifyEmailAsync(token, ct);
-        return result.IsSuccess ? Ok() : ToErrorResult(result);
+        await sender.Send(new VerifyEmailCommand(token), ct);
+        return Ok(ApiResponse.Ok());
     }
 
     [HttpPost("resend-verification")]
-    public async Task<IActionResult> ResendVerification(ResendVerificationRequest request, CancellationToken ct)
+    public async Task<IActionResult> ResendVerification(ResendVerificationCommand command, CancellationToken ct)
     {
-        await authService.ResendVerificationAsync(request.Email, ct);
-        return Accepted();
+        await sender.Send(command, ct);
+        return Ok(ApiResponse.Ok());
     }
 
     [HttpGet("me")]
     [Authorize]
-    public IActionResult Me()
+    public async Task<IActionResult> Me(CancellationToken ct)
     {
-        var id = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
-        var email = User.FindFirstValue(JwtRegisteredClaimNames.Email);
-        var emailVerified = User.FindFirstValue("email_verified") == "true";
-        return Ok(new { id, email, emailVerified });
-    }
-
-    private IActionResult ToErrorResult(Result result)
-    {
-        var body = new { code = result.ErrorCode, message = result.ErrorMessage };
-        return result.ErrorCode switch
-        {
-            AuthErrorCodes.EmailTaken => Conflict(body),
-            AuthErrorCodes.InvalidCredentials => Unauthorized(body),
-            AuthErrorCodes.EmailNotVerified => StatusCode(StatusCodes.Status403Forbidden, body),
-            AuthErrorCodes.TokenExpired => StatusCode(StatusCodes.Status410Gone, body),
-            _ => BadRequest(body),
-        };
+        var userId = Guid.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
+        var result = await sender.Send(new GetCurrentUserQuery(userId), ct);
+        return Ok(ApiResponse.Ok(result));
     }
 }

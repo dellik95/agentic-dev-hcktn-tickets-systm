@@ -21,7 +21,9 @@ async function refreshAccessToken(): Promise<string | null> {
   if (!refreshToken) return null
 
   try {
-    const { data } = await axios.post('/api/v1/auth/refresh', { refreshToken })
+    // Through apiClient (not raw axios) so the {success, data, error} envelope below is
+    // unwrapped the same way as every other call.
+    const { data } = await apiClient.post('/auth/refresh', { refreshToken })
     setAccessToken(data.accessToken)
     setRefreshToken(data.refreshToken)
     return data.accessToken as string
@@ -32,7 +34,12 @@ async function refreshAccessToken(): Promise<string | null> {
 }
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  // Every backend response has the same {success, data, error} shape — unwrap so callers
+  // (authApi.ts etc.) can keep treating response.data as the actual payload type.
+  (response) => {
+    response.data = response.data?.data;
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined
 

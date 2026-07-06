@@ -3,15 +3,27 @@
 Base path: `/api/v1`. All responses JSON. All timestamps ISO-8601 UTC (`2026-07-06T12:34:56.000Z`).
 Auth: `Authorization: Bearer <access_token>` header, except the public endpoints listed in §1.
 
-## 0. Error Contract
+## 0. Response Envelope
+
+Every response — success or failure — has the same shape:
 
 ```json
+{ "success": true, "data": { "...": "..." }, "error": null }
+```
+```json
 {
-  "code": "TEAM_HAS_TICKETS",
-  "message": "Team cannot be deleted because it still has tickets.",
-  "errors": { "field": ["reason"] }
+  "success": false,
+  "data": null,
+  "error": {
+    "code": "TEAM_NAME_TAKEN",
+    "message": "A team with this name already exists.",
+    "fieldErrors": null
+  }
 }
 ```
+`fieldErrors` is populated (`{ "Name": ["Team name is required."] }`) only for `VALIDATION_ERROR`
+(400) — everything else leaves it `null`.
+
 - `400 Bad Request` — validation failure (missing/invalid field, bad enum value).
 - `401 Unauthorized` — missing/invalid/expired token.
 - `403 Forbidden` — reserved, unused in mandatory scope (no role model).
@@ -24,11 +36,11 @@ Auth: `Authorization: Bearer <access_token>` header, except the public endpoints
 |---|---|---|---|
 | POST | `/auth/signup` | public | `{ email, password }` → 201, sends verification email. 409 if email taken. |
 | POST | `/auth/login` | public | `{ email, password }` → 200 `{ accessToken, refreshToken, expiresIn }`. 401 bad creds. 403 if unverified (`code: EMAIL_NOT_VERIFIED`). |
-| POST | `/auth/logout` | authenticated | revokes current refresh token. 204. |
-| POST | `/auth/refresh` | public (requires valid refresh token in body/cookie) | rotates refresh token → new access+refresh pair. 401 if invalid/expired/revoked. |
-| GET | `/auth/verify-email?token=...` | public | validates token, sets `email_verified_at`, marks token used → 200. 400/410 if invalid/expired. |
-| POST | `/auth/resend-verification` | public | `{ email }` → 202 always (avoid user enumeration), issues new token, invalidates prior ones, no-op silently if already verified/unknown email. |
-| GET | `/auth/me` | authenticated | current user `{ id, email, emailVerifiedAt }`. |
+| POST | `/auth/logout` | authenticated | revokes current refresh token. 200 (empty `data`). |
+| POST | `/auth/refresh` | public (requires valid refresh token in body) | rotates refresh token → new access+refresh pair. 400 if invalid/expired/revoked. |
+| GET | `/auth/verify-email?token=...` | public | validates token, sets `email_verified_at`, marks token used → 200. 400 if invalid/expired/already-used. |
+| POST | `/auth/resend-verification` | public | `{ email }` → 200 always (avoid user enumeration), issues new token, invalidates prior ones, no-op silently if already verified/unknown email. |
+| GET | `/auth/me` | authenticated | current user `{ id, email, emailVerified }`. |
 
 ## 2. Teams (authenticated)
 
@@ -38,7 +50,7 @@ Auth: `Authorization: Bearer <access_token>` header, except the public endpoints
 | POST | `/teams` | `{ name }` → 201. 400 empty/whitespace name. 409 duplicate (case-insensitive). |
 | GET | `/teams/{id}` | 200 or 404 |
 | PUT | `/teams/{id}` | `{ name }` (rename) → 200. Same validation as create. |
-| DELETE | `/teams/{id}` | 204. **409** (`code: TEAM_HAS_DEPENDENTS`) if team has any epics or tickets. |
+| DELETE | `/teams/{id}` | 200 (empty `data`). **409** (`code: TEAM_HAS_DEPENDENTS`) if team has any epics or tickets — enforced once Epic 03/04 add those tables; unconditional today. |
 
 ## 3. Epics (authenticated)
 

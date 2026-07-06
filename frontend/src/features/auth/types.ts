@@ -9,8 +9,3 @@ export interface CurrentUser {
   email: string
   emailVerified: boolean
 }
-
-export interface ApiErrorBody {
-  code: string
-  message: string
-}

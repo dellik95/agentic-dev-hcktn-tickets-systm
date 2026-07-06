@@ -5,6 +5,7 @@ import { LoginPage } from '../features/auth/LoginPage'
 import { VerifyEmailPage } from '../features/auth/VerifyEmailPage'
 import { HomePage } from '../features/home/HomePage'
 import { TeamsPage } from '../features/teams/TeamsPage'
+import { EpicsPage } from '../features/epics/EpicsPage'
 import { getCurrentUser } from '../features/auth/session'
 
 // Runs before the protected layout renders — redirects to /login before any child route's
@@ -29,6 +30,7 @@ export const routes: RouteObject[] = [
     children: [
       { path: '/', element: <HomePage /> },
       { path: '/teams', element: <TeamsPage /> },
+      { path: '/epics', element: <EpicsPage /> },
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },

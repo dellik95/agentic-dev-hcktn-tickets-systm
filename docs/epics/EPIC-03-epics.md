@@ -56,6 +56,6 @@ Out: moving an epic between teams (explicit non-goal, spec §5).
 3. Create epic with empty/whitespace title → 400.
 4. Edit an epic's title/description → 200, `updatedAt` advances; team unchanged even if a `teamId`
    were somehow included in the request body (backend ignores/rejects it).
-5. Delete an epic with no tickets → 204.
+5. Delete an epic with no tickets → 200 (empty `data`).
 6. Delete an epic referenced by at least one ticket → 409, epic still present.
 7. Epic list for Team A never shows epics belonging to Team B.

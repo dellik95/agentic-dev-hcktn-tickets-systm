@@ -60,7 +60,7 @@ Every response — success or failure — has the same shape:
 | POST | `/teams/{teamId}/epics` | `{ title, description? }` → 201. Team fixed from route, immutable after. |
 | GET | `/epics/{id}` | 200 or 404 |
 | PUT | `/epics/{id}` | `{ title, description? }` — team NOT editable. |
-| DELETE | `/epics/{id}` | 204. **409** (`code: EPIC_HAS_TICKETS`) if referenced by any ticket. |
+| DELETE | `/epics/{id}` | 200 (empty `data`). **409** (`code: EPIC_HAS_TICKETS`) if referenced by any ticket — enforced once Epic 04 adds tickets; unconditional today. |
 
 ## 4. Tickets (authenticated)
 

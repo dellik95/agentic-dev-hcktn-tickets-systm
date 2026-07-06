@@ -10,6 +10,7 @@ public class TicketingSystemDbContext(DbContextOptions<TicketingSystemDbContext>
     public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<Team> Teams => Set<Team>();
+    public DbSet<Epic> Epics => Set<Epic>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -17,6 +17,12 @@ async function createTeam(page: Page, name: string) {
 async function createEpic(page: Page, teamName: string, title: string) {
   await page.click('nav >> text=Epics')
   await expect(page).toHaveURL(/\/epics/)
+  // Epics and Tickets both render the same TeamSelector component. Right after a client-side nav
+  // between them, the outgoing page's <select> can briefly still be the only one in the DOM — a
+  // bare `page.selectOption('select', ...)` can grab that soon-to-unmount instance instead of this
+  // page's own, silently updating state nobody reads. Waiting for this page's own heading first
+  // guarantees the previous route has actually unmounted.
+  await expect(page.getByRole('heading', { name: 'Epics', level: 1 })).toBeVisible()
   await page.selectOption('select', { label: teamName })
   await page.click('button:has-text("Create epic")')
   await page.fill('[role="dialog"] input[placeholder="Epic title"]', title)
@@ -27,6 +33,8 @@ async function createEpic(page: Page, teamName: string, title: string) {
 async function goToTicketsFor(page: Page, teamName: string) {
   await page.click('nav >> text=Tickets')
   await expect(page).toHaveURL(/\/tickets/)
+  // See the comment in createEpic() above -- same race, same fix, opposite direction.
+  await expect(page.getByRole('heading', { name: 'Tickets', level: 1 })).toBeVisible()
   await page.selectOption('select', { label: teamName })
 }
 

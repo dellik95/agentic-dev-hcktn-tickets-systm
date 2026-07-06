@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { to: '/teams', label: 'Teams', end: false },
   // Epics/Tickets links land alongside their epics.
   { to: '/epics', label: 'Epics', end: false },
+  { to: '/tickets', label: 'Tickets', end: false },
 ]
 
 function navLinkClassName({ isActive }: { isActive: boolean }) {

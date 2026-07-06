@@ -61,9 +61,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create .env from example
-        run: cp .env.example .env
-
       - name: Build and start the stack
         run: docker compose up --build -d
 

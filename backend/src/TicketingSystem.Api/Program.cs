@@ -89,12 +89,15 @@ public class Program
 
         app.MapControllers();
 
+        // Under /api (not versioned — health checks are deliberately excluded from /api/v1) so
+        // nginx's prefix-preserving proxy_pass (see frontend/nginx.conf) reaches them.
+
         // Liveness: process is up, no dependency check.
-        app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
+        app.MapGet("/api/health", () => Results.Ok(new { status = "healthy" }));
 
         // Readiness: only healthy once the database is reachable — used by
         // docker-compose / orchestrators to gate dependent startup.
-        app.MapGet("/health/ready", async (TicketingSystemDbContext db) =>
+        app.MapGet("/api/health/ready", async (TicketingSystemDbContext db) =>
         {
             var canConnect = await db.Database.CanConnectAsync();
             return canConnect

@@ -13,7 +13,7 @@ public class HealthEndpointTests : IClassFixture<WebApplicationFactory<Api.Progr
     public HealthEndpointTests(WebApplicationFactory<Api.Program> factory)
     {
         // "Testing" environment skips the startup DB migration (Program.cs) and a dummy
-        // connection string satisfies DI registration — /health itself never touches the DB.
+        // connection string satisfies DI registration — /api/health itself never touches the DB.
         _factory = factory.WithWebHostBuilder(builder =>
         {
             builder.UseEnvironment("Testing");
@@ -23,7 +23,7 @@ public class HealthEndpointTests : IClassFixture<WebApplicationFactory<Api.Progr
                 {
                     ["ConnectionStrings:Default"] = "Server=localhost;Port=3306;Database=test;User=root;Password=x;",
                     // UseAuthentication() resolves JwtBearerOptions on every request (even for
-                    // anonymous endpoints like /health), so these must be present even though
+                    // anonymous endpoints like /api/health), so these must be present even though
                     // this test never presents a token.
                     ["Jwt:SigningKey"] = "test-signing-key-not-for-real-use-0123456789",
                     ["Jwt:Issuer"] = "ticketing-system-tests",
@@ -37,7 +37,7 @@ public class HealthEndpointTests : IClassFixture<WebApplicationFactory<Api.Progr
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync("/health");
+        var response = await client.GetAsync("/api/health");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }

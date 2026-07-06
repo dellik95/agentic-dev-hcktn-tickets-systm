@@ -3,14 +3,17 @@ services:
     image: mysql:8
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      # Dev-safe defaults baked in so `docker compose up --build` works from a clean checkout
+      # with zero setup (per spec) — no committed .env, no secret-shaped file in git history.
+      # Override any value via a real .env file (gitignored) or exported shell env vars.
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-dev-root-password}
+      MYSQL_DATABASE: ${DB_NAME:-ticketing}
+      MYSQL_USER: ${DB_USER:-ticketing_app}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-dev-app-password}
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-dev-root-password}"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -22,17 +25,18 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      ConnectionStrings__Default: "Server=mysql;Port=3306;Database=${DB_NAME};User=${DB_USER};Password=${DB_PASSWORD};"
-      Jwt__SigningKey: ${JWT_SIGNING_KEY}
-      Jwt__Issuer: ${JWT_ISSUER}
-      Jwt__AccessTokenMinutes: ${JWT_ACCESS_TOKEN_MINUTES}
-      Jwt__RefreshTokenDays: ${JWT_REFRESH_TOKEN_DAYS}
-      Smtp__Host: ${SMTP_HOST}
-      Smtp__Port: ${SMTP_PORT}
-      Smtp__User: ${SMTP_USER}
-      Smtp__Password: ${SMTP_PASSWORD}
-      Smtp__From: ${SMTP_FROM}
-      Frontend__BaseUrl: ${FRONTEND_BASE_URL}
+      ConnectionStrings__Default: "Server=mysql;Port=3306;Database=${DB_NAME:-ticketing};User=${DB_USER:-ticketing_app};Password=${DB_PASSWORD:-dev-app-password};"
+      # Dev-only fallback signing key — override for anything beyond local/demo use.
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:-dev-only-signing-key-do-not-use-in-production-0123456789}
+      Jwt__Issuer: ${JWT_ISSUER:-ticketing-system}
+      Jwt__AccessTokenMinutes: ${JWT_ACCESS_TOKEN_MINUTES:-15}
+      Jwt__RefreshTokenDays: ${JWT_REFRESH_TOKEN_DAYS:-7}
+      Smtp__Host: ${SMTP_HOST:-mailpit}
+      Smtp__Port: ${SMTP_PORT:-1025}
+      Smtp__User: ${SMTP_USER:-}
+      Smtp__Password: ${SMTP_PASSWORD:-}
+      Smtp__From: ${SMTP_FROM:-no-reply@ticketing.local}
+      Frontend__BaseUrl: ${FRONTEND_BASE_URL:-http://localhost}
 
   frontend:
     build: ./frontend

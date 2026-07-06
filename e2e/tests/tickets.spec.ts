@@ -8,8 +8,9 @@ import { signUpVerifyAndLogIn } from '../helpers/auth'
 async function createTeam(page: Page, name: string) {
   await page.click('nav >> text=Teams')
   await expect(page).toHaveURL(/\/teams/)
-  await page.fill('input[placeholder="New team name"]', name)
-  await page.click('button:has-text("Create")')
+  await page.click('button:has-text("Create team")')
+  await page.fill('[role="dialog"] input[placeholder="Team name"]', name)
+  await page.click('[role="dialog"] button:has-text("Create")')
   await expect(page.locator('li', { hasText: name })).toBeVisible()
 }
 
@@ -17,8 +18,9 @@ async function createEpic(page: Page, teamName: string, title: string) {
   await page.click('nav >> text=Epics')
   await expect(page).toHaveURL(/\/epics/)
   await page.selectOption('select', { label: teamName })
-  await page.fill('input[placeholder="New epic title"]', title)
-  await page.click('button:has-text("Create")')
+  await page.click('button:has-text("Create epic")')
+  await page.fill('[role="dialog"] input[placeholder="Epic title"]', title)
+  await page.click('[role="dialog"] button:has-text("Create")')
   await expect(page.locator('li', { hasText: title })).toBeVisible()
 }
 
@@ -38,9 +40,9 @@ test('create, edit, patch state, and delete a ticket', async ({ page }) => {
 
   const title = `E2E Ticket ${Date.now()}`
   await page.click('button:has-text("Create ticket")')
-  await page.fill('input[placeholder="Ticket title"]', title)
+  await page.fill('[role="dialog"] input[placeholder="Ticket title"]', title)
   await page.locator('[data-testid="ticket-form-body"]').fill('Initial body')
-  await page.click('button:has-text("Create")')
+  await page.click('[role="dialog"] button:has-text("Create")')
 
   const row = page.locator('li', { hasText: title })
   await expect(row).toBeVisible()
@@ -50,10 +52,10 @@ test('create, edit, patch state, and delete a ticket', async ({ page }) => {
   // Edit: change title, and jump state directly from "new" to "done" (no sequence enforcement).
   await row.click()
   const renamedTitle = `${title} Renamed`
-  await page.fill('input[placeholder="Ticket title"]', renamedTitle)
-  const stateSelect = page.locator('label:has-text("State") + select')
+  await page.fill('[role="dialog"] input[placeholder="Ticket title"]', renamedTitle)
+  const stateSelect = page.locator('[role="dialog"] label:has-text("State") + select')
   await stateSelect.selectOption({ label: 'Done' })
-  await page.click('button:has-text("Save")')
+  await page.click('[role="dialog"] button:has-text("Save")')
 
   const renamedRow = page.locator('li', { hasText: renamedTitle })
   await expect(renamedRow).toBeVisible()
@@ -61,12 +63,12 @@ test('create, edit, patch state, and delete a ticket', async ({ page }) => {
 
   // No-op resubmit must not advance updatedAt — capture it, save unchanged, compare.
   await renamedRow.click()
-  const updatedAtBefore = await page.locator('text=Updated at:').textContent()
-  await page.click('button:has-text("Save")')
+  const updatedAtBefore = await page.locator('[role="dialog"]').locator('text=Updated at:').textContent()
+  await page.click('[role="dialog"] button:has-text("Save")')
   await renamedRow.click()
-  const updatedAtAfter = await page.locator('text=Updated at:').textContent()
+  const updatedAtAfter = await page.locator('[role="dialog"]').locator('text=Updated at:').textContent()
   expect(updatedAtAfter).toBe(updatedAtBefore)
-  await page.click('button:has-text("Cancel")')
+  await page.click('[role="dialog"] button:has-text("Cancel")')
 
   // Delete, confirming the browser dialog.
   page.once('dialog', (dialog) => dialog.accept())
@@ -89,12 +91,12 @@ test('team-change-clears-epic in the ticket form', async ({ page }) => {
   await page.click('button:has-text("Create ticket")')
 
   // Select team A's epic in the form.
-  const epicSelect = page.locator('label:has-text("Epic") + select')
+  const epicSelect = page.locator('[role="dialog"] label:has-text("Epic") + select')
   await epicSelect.selectOption({ label: epicTitle })
   await expect(epicSelect).toHaveValue(/.+/)
 
   // Switching the form's team to B must clear the epic selection back to "No epic" immediately.
-  const teamSelect = page.locator('label:has-text("Team") + select')
+  const teamSelect = page.locator('[role="dialog"] label:has-text("Team") + select')
   await teamSelect.selectOption({ label: teamB })
   await expect(epicSelect).toHaveValue('')
 
@@ -113,10 +115,10 @@ test('filters combine with AND logic', async ({ page }) => {
   const stamp = Date.now()
   async function quickCreate(type: 'bug' | 'feature' | 'fix', title: string) {
     await page.click('button:has-text("Create ticket")')
-    await page.fill('input[placeholder="Ticket title"]', title)
-    await page.locator('label:has-text("Type") + select').selectOption(type)
+    await page.fill('[role="dialog"] input[placeholder="Ticket title"]', title)
+    await page.locator('[role="dialog"] label:has-text("Type") + select').selectOption(type)
     await page.locator('[data-testid="ticket-form-body"]').fill('body')
-    await page.click('button:has-text("Create")')
+    await page.click('[role="dialog"] button:has-text("Create")')
     await expect(page.locator('li', { hasText: title })).toBeVisible()
   }
 
@@ -146,9 +148,9 @@ test('a team with tickets cannot be deleted', async ({ page }) => {
   await goToTicketsFor(page, teamName)
 
   await page.click('button:has-text("Create ticket")')
-  await page.fill('input[placeholder="Ticket title"]', 'Blocking ticket')
+  await page.fill('[role="dialog"] input[placeholder="Ticket title"]', 'Blocking ticket')
   await page.locator('[data-testid="ticket-form-body"]').fill('body')
-  await page.click('button:has-text("Create")')
+  await page.click('[role="dialog"] button:has-text("Create")')
   await expect(page.locator('li', { hasText: 'Blocking ticket' })).toBeVisible()
 
   await page.click('nav >> text=Teams')
@@ -159,7 +161,14 @@ test('a team with tickets cannot be deleted', async ({ page }) => {
   await expect(teamRow).toBeVisible()
 })
 
-test('opening a different ticket for edit does not carry over stale form state (regression)', async ({ page }) => {
+test('closing one ticket edit modal and opening another shows the new ticket, not stale data (regression)', async ({
+  page,
+}) => {
+  // The edit modal's full-screen overlay makes it impossible to click straight from ticket A's
+  // row to ticket B's while A is open (see TicketForm's `key={editingTicket.id}` — originally
+  // added because, pre-modal, React could reuse the same form instance across a direct A→B row
+  // click and keep A's stale useState-seeded field values). With the modal in place that click
+  // path no longer exists, so this instead verifies the close→reopen path never leaks stale data.
   const email = `e2e-tickets-stale-form-${Date.now()}@example.com`
   await signUpVerifyAndLogIn(page, email, 'correcthorse123')
 
@@ -171,19 +180,19 @@ test('opening a different ticket for edit does not carry over stale form state (
   const titleB = `Ticket B ${Date.now()}`
   for (const t of [titleA, titleB]) {
     await page.click('button:has-text("Create ticket")')
-    await page.fill('input[placeholder="Ticket title"]', t)
+    await page.fill('[role="dialog"] input[placeholder="Ticket title"]', t)
     await page.locator('[data-testid="ticket-form-body"]').fill(`body for ${t}`)
-    await page.click('button:has-text("Create")')
+    await page.click('[role="dialog"] button:has-text("Create")')
     await expect(page.locator('li', { hasText: t })).toBeVisible()
   }
 
-  // Open A for edit, then — WITHOUT saving or cancelling — click B's row directly.
   await page.locator('li', { hasText: titleA }).click()
-  await expect(page.locator('input[placeholder="Ticket title"]')).toHaveValue(titleA)
-  await page.locator('li', { hasText: titleB }).click()
+  await expect(page.locator('[role="dialog"] input[placeholder="Ticket title"]')).toHaveValue(titleA)
+  await page.click('[role="dialog"] button:has-text("Cancel")')
 
-  // The form must now show B's values, not A's stale ones.
-  await expect(page.locator('input[placeholder="Ticket title"]')).toHaveValue(titleB)
+  await page.locator('li', { hasText: titleB }).click()
+  await expect(page.locator('[role="dialog"] input[placeholder="Ticket title"]')).toHaveValue(titleB)
+  await page.click('[role="dialog"] button:has-text("Cancel")')
 })
 
 // page.request shares the browser context's cookie jar, but this app's access token lives in an

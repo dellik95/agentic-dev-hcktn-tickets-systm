@@ -6,6 +6,7 @@ import type { TicketFilters } from './ticketsApi'
 import { TicketForm } from './TicketForm'
 import { getApiErrorMessage } from '../../api/errors'
 import { RichTextViewer } from '../../components/RichTextViewer'
+import { Modal } from '../../components/Modal'
 import { TICKET_STATE_LABELS, TICKET_TYPES, type Ticket, type TicketType } from './types'
 
 const fieldClassName =
@@ -102,23 +103,21 @@ function TicketsList({ teamId }: { teamId: string }) {
         />
       </div>
 
-      {!showCreateForm && !editingTicket && (
-        <button
-          onClick={openCreateForm}
-          className="mb-4 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white dark:bg-gray-100 dark:text-gray-900"
-        >
-          Create ticket
-        </button>
-      )}
+      <button
+        onClick={openCreateForm}
+        className="mb-4 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white dark:bg-gray-100 dark:text-gray-900"
+      >
+        Create ticket
+      </button>
 
       {showCreateForm && (
-        <div className="mb-6">
+        <Modal title="Create ticket" onClose={() => setShowCreateForm(false)}>
           <TicketForm teamId={teamId} onSaved={() => setShowCreateForm(false)} onCancel={() => setShowCreateForm(false)} />
-        </div>
+        </Modal>
       )}
 
       {editingTicket && (
-        <div className="mb-6">
+        <Modal title="Edit ticket" onClose={() => setEditingTicket(null)}>
           {/* key forces a remount when switching directly from editing one ticket to another —
               without it, React treats this as a prop update on the same TicketForm instance, and
               its useState-seeded fields (title/body/type/epic) would keep the PREVIOUS ticket's
@@ -131,7 +130,7 @@ function TicketsList({ teamId }: { teamId: string }) {
             onSaved={() => setEditingTicket(null)}
             onCancel={() => setEditingTicket(null)}
           />
-        </div>
+        </Modal>
       )}
 
       {isLoading && <p className="mt-4 text-sm text-gray-500">Loading…</p>}

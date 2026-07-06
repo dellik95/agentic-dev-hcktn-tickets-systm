@@ -78,7 +78,7 @@ export function TicketForm({ teamId, ticket, onSaved, onCancel }: TicketFormProp
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-md border border-gray-200 p-4 dark:border-gray-800">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <div>
         <label className={labelClassName}>Team</label>
         <TeamSelector value={formTeamId} onChange={handleTeamChange} className={fieldClassName} />

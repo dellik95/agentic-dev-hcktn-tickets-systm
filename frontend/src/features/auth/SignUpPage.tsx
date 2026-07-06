@@ -4,7 +4,7 @@ import { signUp } from './authApi'
 import { getApiErrorMessage } from '../../api/errors'
 
 export function SignUpPage() {
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState('Supervisor@test.com')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)

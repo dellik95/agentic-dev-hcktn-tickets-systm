@@ -1,0 +1,13 @@
+# Auto-loaded alongside docker-compose.yml for local development. Adds convenience
+# (host access to the DB and API directly) without changing the base topology —
+# `docker compose up --build` still works identically on a clean checkout.
+services:
+  mysql:
+    ports:
+      - "${DB_PORT:-3306}:3306"
+
+  backend:
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development

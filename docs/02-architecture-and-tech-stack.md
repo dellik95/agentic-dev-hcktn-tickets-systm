@@ -32,8 +32,9 @@ Three-tier architecture, each tier independently deployable as a container:
 |---|---|---|
 | Frontend | React 18 + TypeScript, Vite build, React Router, TanStack Query (server-state/cache), `@dnd-kit` (drag-and-drop, accessible, no native HTML5 DnD quirks) | Modern, fast dev loop, strong typing end-to-end when paired with generated API types |
 | Frontend styling | CSS Modules or Tailwind (implementation detail, decide in Epic 06) | Not spec-constrained |
-| Backend | .NET 8, ASP.NET Core Web API, minimal-API or controller style (decide in Epic 01, likely controllers for testability/clarity at this scope) | Cross-platform, first-class Docker support, strong EF Core + JWT ecosystem |
-| ORM/migrations | EF Core 8 with Pomelo.EntityFrameworkCore.MySql provider | Mature MySQL provider, migrations satisfy "automated schema creation" requirement |
+| Backend | .NET 10, ASP.NET Core Web API, controller style | Latest .NET, cross-platform, first-class Docker support, strong EF Core + JWT ecosystem |
+| ORM/migrations | EF Core, **pinned to 9.0.17** (not 10.x) — see note below, Pomelo.EntityFrameworkCore.MySql 9.0.0 | Mature MySQL provider, migrations satisfy "automated schema creation" requirement |
+| NuGet package versioning | Central Package Management (`Directory.Packages.props`, `ManagePackageVersionsCentrally=true`) | One version per package across every backend project — no per-csproj version drift |
 | Auth | JWT bearer (access token, short-lived ~15 min) + rotating refresh token (httpOnly cookie or secure storage — finalized in Epic 01) | Explicit stack requirement; refresh rotation mitigates long-lived-token theft risk |
 | Password hashing | Argon2id via `Konscious.Security.Cryptography.Argon2` | Explicit requirement |
 | Email | `MailKit`/`MimeKit` SMTP client, config-driven (`relay1.dataart.com` in non-local envs) | Supports arbitrary SMTP relay per spec |
@@ -44,12 +45,20 @@ Three-tier architecture, each tier independently deployable as a container:
 | Testing — frontend | Vitest + React Testing Library; Playwright for one E2E flow (sign-up → verify → login → board) | Covers ≥1 frontend/API flow |
 | CI | Not mandated by spec; recommended GitHub Actions workflow running backend+frontend test suites (see Epic 08) | Maintainability |
 
+> **EF Core version note**: the app targets **net10.0**, but every `Microsoft.EntityFrameworkCore.*`
+> package is pinned to **9.0.17**, not 10.x. `Pomelo.EntityFrameworkCore.MySql` — the only
+> actively-maintained MySQL provider — hard-depends on `Microsoft.EntityFrameworkCore.Relational
+> [9.0.0, 9.0.999]` and has not shipped an EF Core 10-compatible release. A net10 host consuming
+> net8/9-targeted libraries is fine (forward compatibility); mixing EF Core 9.x and 10.x packages
+> in one dependency graph is not. All EF Core versions live in one place
+> (`backend/Directory.Packages.props`) — bump them together once Pomelo catches up.
+
 ## 3. Repository Layout
 
 ```
 Tiketing-System/
 ├── docker-compose.yml
-├── docker-compose.override.yml        # local dev overrides (hot reload, mailpit, exposed DB port)
+├── docker-compose.override.yml        # local dev overrides (exposed DB/API ports, Development env)
 ├── .env.example
 ├── README.md
 ├── docs/
@@ -69,7 +78,10 @@ Tiketing-System/
 │       └── EPIC-08-testing-quality-nfr.md
 ├── backend/
 │   ├── Dockerfile
-│   ├── TicketingSystem.sln
+│   ├── NuGet.Config             # scoped to nuget.org only (avoids unreachable corporate feeds)
+│   ├── Directory.Build.props    # shared TargetFramework (net10.0), Nullable, ImplicitUsings
+│   ├── Directory.Packages.props # Central Package Management — one version per package, solution-wide
+│   ├── TicketingSystem.slnx
 │   ├── src/
 │   │   ├── TicketingSystem.Api/            # controllers, DI wiring, Program.cs, JWT config
 │   │   ├── TicketingSystem.Application/    # use-cases/services, DTOs, validation

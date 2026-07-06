@@ -1,0 +1,35 @@
+<Project>
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <!--
+    EF Core is pinned to 9.0.x (not 10.x) because Pomelo.EntityFrameworkCore.MySql (the only
+    actively-maintained MySQL provider) has not shipped an EF Core 10-compatible release yet and
+    hard-depends on Microsoft.EntityFrameworkCore.Relational [9.0.0, 9.0.999]. The app itself still
+    targets net10.0 (see Directory.Build.props) — a net10 host consuming net8/9-targeted EF Core
+    packages is fine (forward compatibility); mixing EF Core 9.x and 10.x packages in the same
+    dependency graph is not, so every Microsoft.EntityFrameworkCore.* package below must stay on
+    9.0.17 until Pomelo catches up.
+  -->
+  <ItemGroup Label="EF Core (pinned to 9.0.x for Pomelo MySQL compatibility)">
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.17" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.17" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.17" />
+    <PackageVersion Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Api">
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+  </ItemGroup>
+
+  <ItemGroup Label="Testing">
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.9" />
+    <PackageVersion Include="coverlet.collector" Version="10.0.1" />
+  </ItemGroup>
+
+</Project>
